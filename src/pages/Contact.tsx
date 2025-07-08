@@ -32,14 +32,6 @@ const Contact = () => {
       contact: '+7 727 123 4567',
       action: 'Call Now',
       color: 'bg-orange-500'
-    },
-    {
-      icon: MapPin,
-      title: 'Visit Us',
-      description: 'Our showroom location',
-      contact: 'Almaty, Kazakhstan',
-      action: 'Get Directions',
-      color: 'bg-purple-500'
     }
   ];
 
@@ -63,9 +55,12 @@ const Contact = () => {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="py-20 bg-gradient-to-br from-cream to-white">
+      <section className="relative py-20 bg-white animate-fade-in">
+        {/* Floating circles */}
+        <div className="absolute top-10 left-10 w-24 h-24 bg-secondary/10 rounded-full animate-float" />
+        <div className="absolute bottom-10 right-20 w-16 h-16 bg-primary/10 rounded-full animate-float" style={{animationDelay: '1.5s'}} />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="font-cormorant text-5xl font-bold text-primary mb-6">
             Get in Touch
@@ -78,49 +73,47 @@ const Contact = () => {
       </section>
 
       {/* Contact Methods */}
-      <section className="py-16 bg-white">
+      <section className="py-20 bg-cream animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-cormorant text-3xl font-bold text-primary text-center mb-12">
+          <h2 className="font-cormorant text-4xl font-bold text-primary text-center mb-16 animate-slide-up" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
             How Can We Help You?
           </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {contactMethods.map((method, index) => (
-              <Card key={index} className="hover-lift cursor-pointer group">
-                <CardContent className="p-6 text-center">
-                  <div className={`w-16 h-16 ${method.color} rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
-                    <method.icon className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="font-cormorant text-lg font-semibold text-primary mb-2">
-                    {method.title}
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-3">
-                    {method.description}
-                  </p>
-                  <p className="font-medium text-primary mb-4">
-                    {method.contact}
-                  </p>
-                  <Button size="sm" className="w-full">
-                    {method.action}
-                  </Button>
-                </CardContent>
-              </Card>
+              <div
+                key={index}
+                className="bg-white rounded-2xl shadow-lg border border-clay p-8 flex flex-col items-center text-center animate-fade-in"
+                style={{ animationDelay: `${0.4 + index * 0.1}s`, animationFillMode: 'both' }}
+              >
+                <div className="w-16 h-16 flex items-center justify-center rounded-full mb-6 shadow bg-cream">
+                  <method.icon className={`h-8 w-8 ${method.color.replace('bg-', 'text-')}`} />
+                </div>
+                <h3 className="font-cormorant text-xl font-semibold text-primary mb-2">{method.title}</h3>
+                <p className="text-gray-600 text-sm mb-3">{method.description}</p>
+                <p className="font-bold text-lg text-primary mb-4">{method.contact}</p>
+                <Button
+                  size="lg"
+                  className="tea-gradient text-white rounded-full px-8 py-2 font-semibold transition-transform duration-200 hover:scale-105"
+                >
+                  {method.action}
+                </Button>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Contact Form & Info */}
-      <section className="py-20 bg-cream/30">
+      <section className="py-20 bg-white animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Contact Form */}
-            <Card className="hover-lift">
+            <Card className="hover-lift animate-fade-in" style={{ animationDelay: '0.6s', animationFillMode: 'both' }}>
               <CardHeader>
-                <CardTitle className="font-cormorant text-2xl text-primary">
+                <CardTitle className="font-cormorant text-2xl text-primary animate-slide-up" style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
                   Send Us a Message
                 </CardTitle>
-                <p className="text-gray-600">
+                <p className="text-gray-600 animate-fade-in" style={{ animationDelay: '0.8s', animationFillMode: 'both' }}>
                   Fill out the form below and we'll get back to you within 24 hours.
                 </p>
               </CardHeader>
@@ -164,14 +157,14 @@ const Contact = () => {
 
             {/* Business Info */}
             <div className="space-y-8">
-              <Card>
+              <Card className="animate-fade-in" style={{ animationDelay: '0.9s', animationFillMode: 'both' }}>
                 <CardHeader>
-                  <CardTitle className="font-cormorant text-2xl text-primary flex items-center">
+                  <CardTitle className="font-cormorant text-2xl text-primary flex items-center animate-slide-up" style={{ animationDelay: '1.0s', animationFillMode: 'both' }}>
                     <Clock className="h-6 w-6 mr-2 text-secondary" />
                     Business Hours
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-3 animate-fade-in" style={{ animationDelay: '1.1s', animationFillMode: 'both' }}>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Monday - Friday</span>
                     <span className="font-medium">9:00 AM - 6:00 PM</span>
@@ -191,66 +184,31 @@ const Contact = () => {
                   </div>
                 </CardContent>
               </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-cormorant text-2xl text-primary">
-                    Visit Our Showroom
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-start space-x-3">
-                      <MapPin className="h-5 w-5 text-secondary mt-1" />
-                      <div>
-                        <p className="font-medium">NirvanaChai Showroom</p>
-                        <p className="text-gray-600 text-sm">
-                          123 Tea Street, Medeu District<br />
-                          Almaty, Kazakhstan 050000
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-cream/50 p-4 rounded-lg">
-                      <p className="text-sm text-gray-600">
-                        Visit our showroom to experience our complete tea collection, 
-                        enjoy complimentary tastings, and learn about proper brewing techniques 
-                        from our tea experts.
-                      </p>
-                    </div>
-                    
-                    <Button variant="outline" className="w-full">
-                      <MapPin className="h-4 w-4 mr-2" />
-                      Get Directions
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </div>
         </div>
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-cream animate-fade-in" style={{ animationDelay: '1.2s', animationFillMode: 'both' }}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="font-cormorant text-3xl font-bold text-primary mb-4">
+            <h2 className="font-cormorant text-3xl font-bold text-primary mb-4 animate-slide-up" style={{ animationDelay: '1.3s', animationFillMode: 'both' }}>
               Frequently Asked Questions
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-600 animate-fade-in" style={{ animationDelay: '1.4s', animationFillMode: 'both' }}>
               Quick answers to common questions about our teas and services.
             </p>
           </div>
 
           <div className="space-y-6">
             {faqs.map((faq, index) => (
-              <Card key={index} className="hover-lift">
+              <Card key={index} className="hover-lift animate-fade-in" style={{ animationDelay: `${1.5 + index * 0.1}s`, animationFillMode: 'both' }}>
                 <CardContent className="p-6">
-                  <h3 className="font-cormorant text-lg font-semibold text-primary mb-3">
+                  <h3 className="font-cormorant text-lg font-semibold text-primary mb-3 animate-slide-up" style={{ animationDelay: `${1.6 + index * 0.1}s`, animationFillMode: 'both' }}>
                     {faq.question}
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 animate-fade-in" style={{ animationDelay: `${1.7 + index * 0.1}s`, animationFillMode: 'both' }}>
                     {faq.answer}
                   </p>
                 </CardContent>
@@ -258,11 +216,9 @@ const Contact = () => {
             ))}
           </div>
 
-          <div className="text-center mt-12">
-            <p className="text-gray-600 mb-4">
-              Can't find what you're looking for?
-            </p>
-            <Button className="tea-gradient text-white">
+          <div className="text-center mt-12 animate-fade-in" style={{ animationDelay: '2.0s', animationFillMode: 'both' }}>
+            <p className="text-gray-600 mb-4">Can't find what you're looking for?</p>
+            <Button className="tea-gradient text-white rounded-full px-8 py-2 font-semibold transition-transform duration-200 hover:scale-105">
               Contact Our Support Team
             </Button>
           </div>

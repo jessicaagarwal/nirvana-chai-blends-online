@@ -1,10 +1,15 @@
+/*
+  NirvanaChai Brand Styles
+  - Fonts: Playfair Display, Cormorant Garamond, Marcellus SC (headings); Lato, Open Sans, Poppins, Inter (body)
+  - Colors: Deep Forest Green, Burnt Saffron, Cream, Brass, Earthy Brown, Clay
+  - Use .bg-clay for subtle clay/linen backgrounds
+  - Use .font-body for body font switching
+*/
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@400;500;600;700&family=Marcellus+SC&family=Lato:wght@300;400;700&family=Open+Sans:wght@300;400;700&family=Poppins:wght@300;400;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import Premium Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* NirvanaChai Brand Colors and Design Tokens */
 @layer base {
@@ -222,3 +227,11 @@
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
+
+/* Utility: .font-body for body font switching */
+.font-body {
+  font-family: Lato, 'Open Sans', Poppins, Inter, sans-serif;
+}
+
+/* Example: .bg-clay for clay/linen background */
+/* <div class="bg-clay"> ... </div> */

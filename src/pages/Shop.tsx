@@ -6,11 +6,44 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
+import { useI18n } from '../contexts/I18nContext';
+import { useAppContext } from '../contexts/AppContext';
+import { formatPrice } from '../lib/utils';
+import CustomDropdown from '@/components/ui/CustomDropdown';
+
+// Product type for type safety
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  image: string;
+  category: string;
+  rating: number;
+  reviews: number;
+  description: string;
+  ingredients: string[];
+  inStock: boolean;
+  badge?: string;
+  servingType: string;
+  discount?: string;
+  form?: string; // e.g. 'Loose Leaf', 'Tea Bags'
+  caffeineFree?: boolean;
+  isNew?: boolean;
+}
 
 const Shop = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [viewMode, setViewMode] = useState('grid');
   const { addToCart } = useCart();
+  const [search, setSearch] = useState('');
+  const [sort, setSort] = useState('default');
+  const [productType, setProductType] = useState('All');
+  const [form, setForm] = useState('All');
+  const [caffeine, setCaffeine] = useState('All');
+  const [collection, setCollection] = useState('All');
+  const { t } = useI18n();
+  const { currency } = useAppContext();
 
   const categories = [
     {
@@ -42,7 +75,7 @@ const Shop = () => {
   const productTabs = ['BEST SELLERS', 'NEW', 'WEBSITE EXCLUSIVE'];
   const [activeTab, setActiveTab] = useState('BEST SELLERS');
 
-  const products = [
+  const products: Product[] = [
     {
       id: 1,
       name: 'Mountain Serenity Blend',
@@ -109,9 +142,23 @@ const Shop = () => {
     }
   ];
 
-  const filteredProducts = selectedCategory === 'All' 
-    ? products 
-    : products.filter(product => product.category === selectedCategory);
+  // Filtering logic
+  let filteredProducts = products.filter(product => {
+    const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
+    const matchesForm = form === 'All' || (product.form === form);
+    const matchesCaffeine = caffeine === 'All' || (product.caffeineFree ? 'Caffeine Free' : 'Caffeinated');
+    const matchesCollection = collection === 'All' || product.badge === collection;
+    const matchesSearch = product.name.toLowerCase().includes(search.toLowerCase()) || product.description.toLowerCase().includes(search.toLowerCase());
+    let matchesTab = true;
+    if (activeTab === 'BEST SELLERS') matchesTab = product.badge === 'Best Seller';
+    if (activeTab === 'NEW') matchesTab = product.isNew;
+    if (activeTab === 'WEBSITE EXCLUSIVE') matchesTab = product.badge === 'Exclusive';
+    return matchesCategory && matchesForm && matchesCaffeine && matchesCollection && matchesSearch && matchesTab;
+  });
+
+  // Sorting logic
+  if (sort === 'price-asc') filteredProducts = filteredProducts.sort((a, b) => a.price - b.price);
+  if (sort === 'price-desc') filteredProducts = filteredProducts.sort((a, b) => b.price - a.price);
 
   const handleAddToCart = (e: React.MouseEvent, product: any) => {
     e.preventDefault();
@@ -120,149 +167,161 @@ const Shop = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-cream to-white border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-          <p className="text-sm font-medium text-earthy-brown mb-4 tracking-widest uppercase">
-            SOMETHING FOR EVERYONE
-          </p>
-          <h1 className="font-playfair text-5xl md:text-6xl font-bold text-primary mb-6 text-gradient">
-            Shop by Category
-          </h1>
+      <div className="relative bg-white border-b border-border">
+        {/* Floating circles */}
+        <div className="absolute top-10 left-10 w-24 h-24 bg-secondary/10 rounded-full animate-float" />
+        <div className="absolute bottom-10 right-20 w-16 h-16 bg-primary/10 rounded-full animate-float" style={{animationDelay: '1.5s'}} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center">
+          <h1 className="font-playfair text-5xl md:text-6xl font-bold text-primary mb-2 animate-fade-in-up">All Products</h1>
+          <p className="text-lg text-earthy-brown animate-fade-in-up">Explore our complete range of teas, coffees, and botanicals crafted for modern wellness rituals.</p>
         </div>
       </div>
 
-      {/* Category Circles Section */}
-      <div className="bg-cream py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
-            {categories.map((category, index) => (
-              <div key={category.id} className="text-center group">
-                <div className="relative mb-8">
-                  <div className={`w-80 h-80 mx-auto rounded-full ${category.color} p-8 flex items-center justify-center relative overflow-hidden hover-lift transition-all duration-500`}>
-                    <img
-                      src={category.image}
-                      alt={category.name}
-                      className="w-full h-full object-cover rounded-full opacity-90 group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-black/20 rounded-full"></div>
-                  </div>
-                </div>
-                <h3 className="font-playfair text-2xl font-bold text-primary mb-2 tracking-wide">
-                  {category.title}
-                </h3>
-                <p className="text-earthy-brown text-sm max-w-xs mx-auto leading-relaxed">
-                  {category.description}
-                </p>
+      {/* Main Shop Layout */}
+      <div className="bg-cream max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 lg:grid-cols-5 gap-10">
+        {/* Filter Sidebar */}
+        <aside className="lg:col-span-1 xl:col-span-1 mb-10 lg:mb-0 animate-fade-in-up">
+          <div className="bg-white rounded-2xl shadow p-4 sticky top-28">
+            <h2 className="font-playfair text-xl font-bold text-primary mb-6">Filters</h2>
+            {/* Price Filter */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-primary mb-2">Price</label>
+              <input type="range" min="0" max="5000" className="w-full accent-secondary" />
+              <div className="flex justify-between text-xs text-earthy-brown mt-2">
+                <span>₸0</span>
+                <span>₸5000</span>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Shop by Product Section */}
-      <div className="bg-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <p className="text-sm font-medium text-earthy-brown mb-4 tracking-widest uppercase">
-              DISCOVER YOUR FAVORITE
-            </p>
-            <h2 className="font-playfair text-5xl md:text-6xl font-bold text-primary mb-8 text-gradient">
-              Shop by Product
-            </h2>
-            
-            {/* Product Tabs */}
-            <div className="flex justify-center gap-8 mb-12">
-              {productTabs.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`text-sm font-medium tracking-wider transition-all duration-300 pb-2 border-b-2 ${
-                    activeTab === tab
-                      ? 'text-primary border-saffron-orange'
-                      : 'text-earthy-brown border-transparent hover:text-primary'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
+            </div>
+            {/* Product Type Filter */}
+            <div className="mb-6 animate-fade-in-up">
+              <label className="block text-sm font-semibold text-primary mb-2">Product Type</label>
+              <CustomDropdown
+                options={[
+                  { value: 'All', label: 'All' },
+                  { value: 'Green Tea', label: 'Green Tea' },
+                  { value: 'Herbal', label: 'Herbal' },
+                  { value: 'Black Tea', label: 'Black Tea' },
+                ]}
+                value={productType}
+                onChange={setProductType}
+                placeholder="All"
+                className="min-w-[120px] px-4 py-2"
+              />
+            </div>
+            {/* Form Filter */}
+            <div className="mb-6 animate-fade-in-up">
+              <label className="block text-sm font-semibold text-primary mb-2">Form</label>
+              <CustomDropdown
+                options={[
+                  { value: 'All', label: 'All' },
+                  { value: 'Loose Leaf', label: 'Loose Leaf' },
+                  { value: 'Tea Bags', label: 'Tea Bags' },
+                ]}
+                value={form}
+                onChange={setForm}
+                placeholder="All"
+                className="min-w-[120px] px-4 py-2"
+              />
+            </div>
+            {/* Caffeine Filter */}
+            <div className="mb-6 animate-fade-in-up">
+              <label className="block text-sm font-semibold text-primary mb-2">Caffeine</label>
+              <CustomDropdown
+                options={[
+                  { value: 'All', label: 'All' },
+                  { value: 'Caffeinated', label: 'Caffeinated' },
+                  { value: 'Caffeine Free', label: 'Caffeine Free' },
+                ]}
+                value={caffeine}
+                onChange={setCaffeine}
+                placeholder="All"
+                className="min-w-[120px] px-4 py-2"
+              />
+            </div>
+            {/* Collection Filter */}
+            <div className="animate-fade-in-up">
+              <label className="block text-sm font-semibold text-primary mb-2">Collection</label>
+              <CustomDropdown
+                options={[
+                  { value: 'All', label: 'All' },
+                  { value: 'Premium', label: 'Premium' },
+                  { value: 'Wellness', label: 'Wellness' },
+                  { value: 'Luxury', label: 'Luxury' },
+                ]}
+                value={collection}
+                onChange={setCollection}
+                placeholder="All"
+                className="min-w-[120px] px-4 py-2"
+              />
             </div>
           </div>
+        </aside>
 
-          {/* Products Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {products.map((product) => (
-              <Card key={product.id} className="group hover-lift cursor-pointer border-0 tea-shadow bg-white overflow-hidden">
-                <CardContent className="p-0">
-                  <Link to={`/product/${product.id}`}>
-                    <div className="relative overflow-hidden">
+        {/* Product Grid & Sort */}
+        <main className="lg:col-span-4 xl:col-span-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4 animate-fade-in-up">
+            <div></div>
+            <div>
+              <CustomDropdown
+                options={[
+                  { value: 'featured', label: 'Sort By' },
+                  { value: 'best-selling', label: 'Best selling' },
+                  { value: 'az', label: 'Alphabetically, A-Z' },
+                  { value: 'za', label: 'Alphabetically, Z-A' },
+                  { value: 'price-asc', label: 'Price, low to high' },
+                  { value: 'price-desc', label: 'Price, high to low' },
+                  { value: 'date-new', label: 'Date, new to old' },
+                  { value: 'date-old', label: 'Date, old to new' },
+                ]}
+                value={sort}
+                onChange={setSort}
+                placeholder="Sort By"
+                className="min-w-[120px] px-4 py-2"
+                // The CustomDropdown already uses side='bottom' in its implementation
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredProducts.map((product, idx) => (
+              <Link key={product.id} to={`/product/${product.id}`} className="block group">
+                <Card className={`rounded-2xl bg-white shadow-lg border-0 hover-lift transition-all flex flex-col animate-fade-in-up`} style={{animationDelay: `${idx * 80}ms`}}>
+                  <CardContent className="p-6 flex flex-col flex-1">
+                    <div className="relative mb-4">
                       <img
                         src={product.image}
                         alt={product.name}
-                        className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-56 object-cover rounded-xl mb-2"
                       />
                       {product.badge && (
-                        <Badge className="absolute top-4 left-4 bg-red-500 text-white font-medium">
-                          {product.badge}
-                        </Badge>
+                        <Badge className="absolute top-4 left-4 bg-secondary text-white font-semibold">{product.badge}</Badge>
                       )}
                       {product.discount && (
-                        <Badge className="absolute top-4 right-4 bg-saffron-orange text-white font-medium">
-                          {product.discount}
-                        </Badge>
+                        <Badge className="absolute top-4 right-4 bg-green-600 text-white font-semibold">{product.discount}</Badge>
                       )}
                     </div>
-                    
-                    <div className="p-6">
-                      {/* Rating */}
-                      <div className="flex items-center mb-3">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-4 w-4 text-saffron-orange fill-current" />
-                        ))}
-                        <span className="text-sm text-earthy-brown ml-2">
-                          {product.reviews} reviews
-                        </span>
-                      </div>
-                      
-                      <h3 className="font-playfair text-xl font-semibold text-primary mb-2 group-hover:text-saffron-orange transition-colors">
-                        {product.name}
-                      </h3>
-                      
-                      <p className="text-sm text-earthy-brown mb-4">
-                        {product.servingType}
-                      </p>
-                      
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg font-bold text-primary">₸{product.price}</span>
-                          {product.originalPrice && (
-                            <span className="text-sm text-gray-500 line-through">₸{product.originalPrice}</span>
-                          )}
-                        </div>
-                        {product.discount && (
-                          <span className="text-sm font-medium text-saffron-orange">
-                            {product.discount}
-                          </span>
-                        )}
-                      </div>
+                    <h3 className="font-playfair text-lg font-semibold text-primary mb-1">{product.name}</h3>
+                    <div className="flex items-center mb-2">
+                      {[...Array(Math.round(product.rating))].map((_, i) => (
+                        <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
+                      ))}
+                      <span className="text-xs text-gray-600 ml-2">{product.reviews} reviews</span>
                     </div>
-                  </Link>
-                  
-                  <div className="px-6 pb-6">
-                    <Button 
-                      onClick={(e) => handleAddToCart(e, product)}
-                      className="w-full bg-forest-green hover:bg-forest-green/90 text-white font-medium py-3 transition-all duration-300"
-                      size="lg"
-                    >
-                      ADD TO CART
+                    <p className="text-sm text-gray-600 mb-2 flex-1">{product.description}</p>
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="font-bold text-primary text-lg">₸{product.price}</span>
+                      {product.originalPrice && <span className="text-sm text-gray-500 line-through">₸{product.originalPrice}</span>}
+                    </div>
+                    <Button size="sm" className="bg-secondary hover:bg-secondary/90 text-white font-semibold rounded-full w-full mt-auto" onClick={e => { e.preventDefault(); e.stopPropagation(); handleAddToCart(e, product); }}>
+                      Add to Cart
                     </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

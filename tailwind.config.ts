@@ -21,7 +21,14 @@ export default {
 		extend: {
 			fontFamily: {
 				'playfair': ['Playfair Display', 'serif'],
+				'cormorant': ['Cormorant Garamond', 'serif'],
+				'marcellus': ['Marcellus SC', 'serif'],
 				'inter': ['Inter', 'sans-serif'],
+				'lato': ['Lato', 'sans-serif'],
+				'open-sans': ['Open Sans', 'sans-serif'],
+				'poppins': ['Poppins', 'sans-serif'],
+				// Utility for body font (set via class)
+				'body': ['Lato', 'Open Sans', 'Poppins', 'Inter', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -73,6 +80,8 @@ export default {
 				'cream': 'hsl(var(--cream))',
 				'brass': 'hsl(var(--brass))',
 				'earthy-brown': 'hsl(var(--earthy-brown))',
+				// Subtle clay/linen background for brand feel
+				'clay': '#F5EFE6', // soft clay/linen
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

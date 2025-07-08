@@ -1,0 +1,38 @@
+{
+  "home": {
+    "tagline": "A Journey in Every Sip",
+    "explore": "Explore Our Blends",
+    "reviews": "What Our Customers Say"
+  },
+  "shop": {
+    "title": "Shop by Category",
+    "search": "Search teas...",
+    "sort": "Sort by",
+    "priceLowHigh": "Price: Low to High",
+    "priceHighLow": "Price: High to Low"
+  },
+  "product": {
+    "addToCart": "Add to Cart",
+    "related": "Related Products",
+    "reviews": "Customer Reviews"
+  },
+  "about": {
+    "title": "About NirvanaChai"
+  },
+  "contact": {
+    "title": "Contact Us"
+  },
+  "footer": {
+    "privacy": "Privacy Policy",
+    "return": "Return Policy",
+    "shipping": "Shipping Policy",
+    "terms": "Terms & Conditions"
+  },
+  "trackOrder": {
+    "title": "Track Your Order",
+    "orderId": "Order ID",
+    "email": "Email",
+    "track": "Track Order",
+    "status": "Status"
+  }
+} 

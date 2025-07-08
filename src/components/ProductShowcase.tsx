@@ -1,11 +1,13 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Star } from 'lucide-react';
+import { Star, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext';
+import { useAppContext } from '@/contexts/AppContext';
 
 interface Product {
   id: number;
@@ -38,11 +40,28 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
   const productTabs = ['BEST SELLERS', 'NEW', 'WEBSITE EXCLUSIVE'];
   const [activeTab, setActiveTab] = useState('BEST SELLERS');
   const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { currency } = useAppContext();
 
   const handleAddToCart = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
     e.stopPropagation();
     addToCart(product);
+  };
+
+  const handleWishlist = (e: React.MouseEvent, product: Product) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isInWishlist(product.id)) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+      });
+    }
   };
 
   return (
@@ -86,6 +105,17 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
                       alt={product.name}
                       className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
                     />
+                    {/* Wishlist Heart Button */}
+                    <button
+                      onClick={e => handleWishlist(e, product)}
+                      className="absolute top-4 right-4 z-10 bg-white/80 rounded-full p-2 shadow hover:bg-saffron-orange/90 transition-colors"
+                      aria-label={isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
+                    >
+                      <Heart
+                        className={`h-6 w-6 ${isInWishlist(product.id) ? 'fill-saffron-orange text-saffron-orange' : 'text-gray-400'}`}
+                        strokeWidth={isInWishlist(product.id) ? 0 : 2}
+                      />
+                    </button>
                     {product.badge && (
                       <Badge className="absolute top-4 left-4 bg-red-500 text-white font-medium">
                         {product.badge}
@@ -119,9 +149,9 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
                     
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-primary">₸{product.price}</span>
+                        <span className="text-lg font-bold text-primary">{currency}{product.price}</span>
                         {product.originalPrice && (
-                          <span className="text-sm text-gray-500 line-through">₸{product.originalPrice}</span>
+                          <span className="text-sm text-gray-500 line-through">{currency}{product.originalPrice}</span>
                         )}
                       </div>
                       {product.discount && (

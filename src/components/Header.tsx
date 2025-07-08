@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ShoppingBag, Search, User, LogOut } from 'lucide-react';
+import { Menu, X, ShoppingBag, Search, User, LogOut, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -12,14 +12,19 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import LanguageCurrencySelector from './LanguageCurrencySelector';
+import LanguageSelector from './LanguageSelector';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAppContext } from '../contexts/AppContext';
+import { useWishlist } from '@/contexts/WishlistContext';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const { getTotalItems } = useCart();
   const { user, logout } = useAuth();
+  const { lang, setLang, currency, setCurrency } = useAppContext();
+  const { items: wishlistItems } = useWishlist();
 
   const navigation = [
     { name: 'Home', href: '/' },
@@ -67,11 +72,8 @@ const Header = () => {
 
           {/* Right Side Icons */}
           <div className="flex items-center space-x-4">
-            <LanguageCurrencySelector />
+            <LanguageCurrencySelector currentLang={lang} onLangChange={setLang} currentCurrency={currency} onCurrencyChange={setCurrency} />
             
-            <Button variant="ghost" size="sm" className="hidden sm:flex hover:bg-secondary/10 transition-colors">
-              <Search className="h-4 w-4" />
-            </Button>
             
             {/* User Menu */}
             <DropdownMenu>
@@ -119,6 +121,18 @@ const Header = () => {
                 {getTotalItems() > 0 && (
                   <Badge className="absolute -top-1 -right-1 bg-secondary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center p-0">
                     {getTotalItems()}
+                  </Badge>
+                )}
+              </Link>
+            </Button>
+
+            {/* Wishlist */}
+            <Button variant="ghost" size="sm" asChild className="relative hover:bg-secondary/10 transition-colors">
+              <Link to="/wishlist">
+                <Heart className="h-4 w-4" />
+                {wishlistItems.length > 0 && (
+                  <Badge className="absolute -top-1 -right-1 bg-saffron-orange text-white text-xs rounded-full h-5 w-5 flex items-center justify-center p-0">
+                    {wishlistItems.length}
                   </Badge>
                 )}
               </Link>

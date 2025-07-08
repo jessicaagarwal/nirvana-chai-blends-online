@@ -56,21 +56,24 @@ const About = () => {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-br from-cream to-white">
+      <section className="relative py-20 bg-white animate-fade-in">
+        {/* Floating circles */}
+        <div className="absolute top-10 left-10 w-24 h-24 bg-secondary/10 rounded-full animate-float" />
+        <div className="absolute bottom-10 right-20 w-16 h-16 bg-primary/10 rounded-full animate-float" style={{animationDelay: '1.5s'}} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h1 className="font-cormorant text-5xl font-bold text-primary mb-6">
+              <h1 className="font-cormorant text-5xl font-bold text-primary mb-6 animate-slide-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
                 Our Story
               </h1>
-              <p className="text-lg text-gray-600 mb-6">
+              <p className="text-lg text-gray-600 mb-6 animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
                 NirvanaChai was born from a deep love for tea and a desire to share the authentic 
                 flavors of Kazakhstan with the world. What started as a small family business has 
                 grown into a beloved brand trusted by tea enthusiasts across the globe.
               </p>
-              <p className="text-lg text-gray-600">
+              <p className="text-lg text-gray-600 animate-fade-in" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
                 Every cup tells a story of tradition, quality, and the breathtaking landscapes 
                 of Kazakhstan that inspire our unique blends.
               </p>
@@ -79,7 +82,7 @@ const About = () => {
               <img
                 src="/placeholder.svg"
                 alt="Tea plantation in Kazakhstan"
-                className="w-full h-96 object-cover rounded-2xl tea-shadow"
+                className="w-full h-96 object-cover rounded-2xl tea-shadow animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}
               />
               <div className="absolute -bottom-6 -left-6 w-32 h-32 tea-gradient rounded-full opacity-20 animate-float"></div>
             </div>
@@ -88,10 +91,12 @@ const About = () => {
       </section>
 
       {/* Mission Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-cream animate-fade-in" style={{ animationDelay: '0.6s', animationFillMode: 'both' }}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-cormorant text-4xl font-bold text-primary mb-8">Our Mission</h2>
-          <p className="text-xl text-gray-600 leading-relaxed">
+          <h2 className="font-cormorant text-4xl font-bold text-primary mb-8 animate-slide-up" style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
+            Our Mission
+          </h2>
+          <p className="text-xl text-gray-600 leading-relaxed animate-fade-in" style={{ animationDelay: '0.8s', animationFillMode: 'both' }}>
             To create exceptional tea experiences that honor Kazakh traditions while bringing 
             people together through the universal language of tea. We believe that every cup 
             should be a moment of tranquility, connection, and pure enjoyment.
@@ -100,18 +105,20 @@ const About = () => {
       </section>
 
       {/* Values Section */}
-      <section className="py-20 bg-cream/30">
+      <section className="py-20 bg-white animate-fade-in" style={{ animationDelay: '0.9s', animationFillMode: 'both' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="font-cormorant text-4xl font-bold text-primary mb-4">Our Values</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <h2 className="font-cormorant text-4xl font-bold text-primary mb-4 animate-slide-up" style={{ animationDelay: '1.0s', animationFillMode: 'both' }}>
+              Our Values
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '1.1s', animationFillMode: 'both' }}>
               These core principles guide everything we do, from sourcing ingredients to crafting the perfect blend.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => (
-              <Card key={index} className="text-center hover-lift">
+              <Card key={index} className="text-center hover-lift transform scale-100 hover:scale-105 transition-all duration-300 animate-fade-in" style={{ animationDelay: `${1.2 + index * 0.1}s`, animationFillMode: 'both' }}>
                 <CardContent className="p-6">
                   <div className="w-16 h-16 tea-gradient rounded-full flex items-center justify-center mx-auto mb-4">
                     <value.icon className="h-8 w-8 text-white" />
@@ -130,22 +137,21 @@ const About = () => {
       </section>
 
       {/* Timeline Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-cream animate-fade-in" style={{ animationDelay: '1.7s', animationFillMode: 'both' }}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="font-cormorant text-4xl font-bold text-primary mb-4">Our Journey</h2>
-            <p className="text-gray-600">From humble beginnings to global recognition</p>
+            <h2 className="font-cormorant text-4xl font-bold text-primary mb-4 animate-slide-up" style={{ animationDelay: '1.8s', animationFillMode: 'both' }}>
+              Our Journey
+            </h2>
+            <p className="text-gray-600 animate-fade-in" style={{ animationDelay: '1.9s', animationFillMode: 'both' }}>From humble beginnings to global recognition</p>
           </div>
 
           <div className="relative">
             <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-primary/20"></div>
-            
             {timeline.map((item, index) => (
-              <div key={index} className={`relative flex items-center mb-12 ${
-                index % 2 === 0 ? 'justify-start' : 'justify-end'
-              }`}>
+              <div key={index} className={`relative flex items-center mb-12 ${index % 2 === 0 ? 'justify-start' : 'justify-end'} animate-fade-in`} style={{ animationDelay: `${2.0 + index * 0.1}s`, animationFillMode: 'both' }}>
                 <div className={`w-full max-w-md ${index % 2 === 0 ? 'pr-8' : 'pl-8'}`}>
-                  <Card className="hover-lift">
+                  <Card className="hover-lift transform scale-100 hover:scale-105 transition-all duration-300">
                     <CardContent className="p-6">
                       <div className="flex items-center mb-3">
                         <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center text-white font-bold text-sm">
@@ -159,7 +165,6 @@ const About = () => {
                     </CardContent>
                   </Card>
                 </div>
-                
                 <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-primary rounded-full border-4 border-white shadow-lg"></div>
               </div>
             ))}
@@ -168,7 +173,7 @@ const About = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 tea-gradient text-white">
+      <section className="py-20 bg-white animate-fade-in" style={{ animationDelay: '2.6s', animationFillMode: 'both' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
             {[
@@ -177,9 +182,9 @@ const About = () => {
               { number: '15+', label: 'Countries Served' },
               { number: '6', label: 'Years of Excellence' }
             ].map((stat, index) => (
-              <div key={index}>
-                <div className="font-cormorant text-4xl font-bold mb-2">{stat.number}</div>
-                <div className="text-white/80">{stat.label}</div>
+              <div key={index} className="animate-fade-in" style={{ animationDelay: `${2.7 + index * 0.1}s`, animationFillMode: 'both' }}>
+                <div className="font-cormorant text-4xl font-bold mb-2 text-primary">{stat.number}</div>
+                <div className="text-earthy-brown text-lg font-medium">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -187,23 +192,22 @@ const About = () => {
       </section>
 
       {/* Team Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-cream animate-fade-in" style={{ animationDelay: '3.1s', animationFillMode: 'both' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-cormorant text-4xl font-bold text-primary mb-8">
+          <h2 className="font-cormorant text-4xl font-bold text-primary mb-8 animate-slide-up" style={{ animationDelay: '3.2s', animationFillMode: 'both' }}>
             Meet Our Tea Masters
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto mb-12">
+          <p className="text-gray-600 max-w-2xl mx-auto mb-12 animate-fade-in" style={{ animationDelay: '3.3s', animationFillMode: 'both' }}>
             Our team of passionate tea experts work tirelessly to bring you the finest 
             tea experiences, combining traditional knowledge with modern innovation.
           </p>
-          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               { name: 'Aigerim Nazarbayeva', role: 'Founder & Master Blender', image: '/placeholder.svg' },
               { name: 'Daulet Karimov', role: 'Quality Control Expert', image: '/placeholder.svg' },
               { name: 'Saltanat Omarova', role: 'Cultural Heritage Consultant', image: '/placeholder.svg' }
             ].map((member, index) => (
-              <Card key={index} className="hover-lift">
+              <Card key={index} className="hover-lift transform scale-100 hover:scale-105 transition-all duration-300 animate-fade-in" style={{ animationDelay: `${3.4 + index * 0.1}s`, animationFillMode: 'both' }}>
                 <CardContent className="p-6">
                   <img
                     src={member.image}
