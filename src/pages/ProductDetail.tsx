@@ -6,11 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useCart } from '@/contexts/CartContext';
+import { toast } from '@/components/ui/use-toast';
 
 const ProductDetail = () => {
   const { id } = useParams();
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const { addToCart } = useCart();
 
   // Mock product data - in a real app, this would come from an API
   const product = {
@@ -31,7 +34,18 @@ const ProductDetail = () => {
     weight: '100g',
     origin: 'Kazakhstan Highlands',
     badge: 'Best Seller',
-    benefits: ['Stress Relief', 'Antioxidant Rich', 'Natural Energy', 'Digestive Support']
+    benefits: ['Stress Relief', 'Antioxidant Rich', 'Natural Energy', 'Digestive Support'],
+    servingType: 'Loose Leaf | 170 Cups'
+  };
+
+  const handleAddToCart = () => {
+    for (let i = 0; i < quantity; i++) {
+      addToCart(product);
+    }
+    toast({
+      title: "Added to cart",
+      description: `${quantity} x ${product.name} added to your cart`,
+    });
   };
 
   const relatedProducts = [
@@ -172,7 +186,10 @@ const ProductDetail = () => {
               </div>
               
               <div className="flex space-x-4">
-                <Button className="flex-1 tea-gradient text-white">
+                <Button 
+                  onClick={handleAddToCart}
+                  className="flex-1 tea-gradient text-white"
+                >
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   Add to Cart
                 </Button>

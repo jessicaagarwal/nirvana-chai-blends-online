@@ -5,10 +5,12 @@ import { Filter, Grid, List, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useCart } from '@/contexts/CartContext';
 
 const Shop = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [viewMode, setViewMode] = useState('grid');
+  const { addToCart } = useCart();
 
   const categories = [
     {
@@ -110,6 +112,12 @@ const Shop = () => {
   const filteredProducts = selectedCategory === 'All' 
     ? products 
     : products.filter(product => product.category === selectedCategory);
+
+  const handleAddToCart = (e: React.MouseEvent, product: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(product);
+  };
 
   return (
     <div className="min-h-screen bg-cream">
@@ -238,15 +246,18 @@ const Shop = () => {
                           </span>
                         )}
                       </div>
-                      
-                      <Button 
-                        className="w-full bg-forest-green hover:bg-forest-green/90 text-white font-medium py-3 transition-all duration-300"
-                        size="lg"
-                      >
-                        ADD TO CART
-                      </Button>
                     </div>
                   </Link>
+                  
+                  <div className="px-6 pb-6">
+                    <Button 
+                      onClick={(e) => handleAddToCart(e, product)}
+                      className="w-full bg-forest-green hover:bg-forest-green/90 text-white font-medium py-3 transition-all duration-300"
+                      size="lg"
+                    >
+                      ADD TO CART
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}

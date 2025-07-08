@@ -1,13 +1,25 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ShoppingBag, Search, User } from 'lucide-react';
+import { Menu, X, ShoppingBag, Search, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import LanguageCurrencySelector from './LanguageCurrencySelector';
+import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const { getTotalItems } = useCart();
+  const { user, logout } = useAuth();
 
   const navigation = [
     { name: 'Home', href: '/' },
@@ -61,15 +73,55 @@ const Header = () => {
               <Search className="h-4 w-4" />
             </Button>
             
-            <Button variant="ghost" size="sm" className="hover:bg-secondary/10 transition-colors">
-              <User className="h-4 w-4" />
-            </Button>
+            {/* User Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="hover:bg-secondary/10 transition-colors">
+                  <User className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                {user ? (
+                  <>
+                    <div className="px-2 py-1.5 text-sm font-medium">
+                      Hello, {user.name}
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/profile">My Account</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/orders">Order History</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logout} className="text-red-600">
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link to="/auth">Sign In</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/auth">Create Account</Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
             
-            <Button variant="ghost" size="sm" className="relative hover:bg-secondary/10 transition-colors">
-              <ShoppingBag className="h-4 w-4" />
-              <span className="absolute -top-1 -right-1 bg-secondary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
-                0
-              </span>
+            {/* Shopping Cart */}
+            <Button variant="ghost" size="sm" asChild className="relative hover:bg-secondary/10 transition-colors">
+              <Link to="/cart">
+                <ShoppingBag className="h-4 w-4" />
+                {getTotalItems() > 0 && (
+                  <Badge className="absolute -top-1 -right-1 bg-secondary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center p-0">
+                    {getTotalItems()}
+                  </Badge>
+                )}
+              </Link>
             </Button>
 
             {/* Mobile menu button */}

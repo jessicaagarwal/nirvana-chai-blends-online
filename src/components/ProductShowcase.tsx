@@ -5,6 +5,7 @@ import { Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useCart } from '@/contexts/CartContext';
 
 interface Product {
   id: number;
@@ -36,6 +37,13 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
 }) => {
   const productTabs = ['BEST SELLERS', 'NEW', 'WEBSITE EXCLUSIVE'];
   const [activeTab, setActiveTab] = useState('BEST SELLERS');
+  const { addToCart } = useCart();
+
+  const handleAddToCart = (e: React.MouseEvent, product: Product) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(product);
+  };
 
   return (
     <div className="bg-white py-20">
@@ -68,7 +76,7 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {products.slice(0, 4).map((product) => (
+          {products.slice(0, 4).map((product, index) => (
             <Card key={product.id} className="group hover-lift cursor-pointer border-0 tea-shadow bg-white overflow-hidden">
               <CardContent className="p-0">
                 <Link to={`/product/${product.id}`}>
@@ -122,15 +130,18 @@ const ProductShowcase: React.FC<ProductShowcaseProps> = ({
                         </span>
                       )}
                     </div>
-                    
-                    <Button 
-                      className="w-full bg-forest-green hover:bg-forest-green/90 text-white font-medium py-3 transition-all duration-300"
-                      size="lg"
-                    >
-                      ADD TO CART
-                    </Button>
                   </div>
                 </Link>
+                
+                <div className="px-6 pb-6">
+                  <Button 
+                    onClick={(e) => handleAddToCart(e, product)}
+                    className="w-full bg-forest-green hover:bg-forest-green/90 text-white font-medium py-3 transition-all duration-300"
+                    size="lg"
+                  >
+                    ADD TO CART
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}
