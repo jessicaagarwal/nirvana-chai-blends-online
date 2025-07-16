@@ -1,24 +1,28 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from '@/components/ui/use-toast';
+import { createCheckout, addLineItems, removeLineItems, updateLineItems } from '../lib/shopify';
 
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
+interface ShopifyCartItem {
+  id: string;
+  title: string;
   quantity: number;
-  servingType: string;
+  image?: string;
+  price: string;
+  currency: string;
+  variantId: string;
 }
 
 interface CartContextType {
-  items: CartItem[];
-  addToCart: (product: any) => void;
-  removeFromCart: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
-  clearCart: () => void;
+  items: ShopifyCartItem[];
+  checkoutId: string | null;
+  webUrl: string | null;
+  addToCart: (variantId: string, quantity?: number) => Promise<void>;
+  removeFromCart: (lineItemId: string) => Promise<void>;
+  updateQuantity: (lineItemId: string, quantity: number) => Promise<void>;
+  clearCart: () => Promise<void>;
   getTotalItems: () => number;
-  getTotalPrice: () => number;
+  getTotalPrice: () => string;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -32,90 +36,94 @@ export const useCart = () => {
 };
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<ShopifyCartItem[]>([]);
+  const [checkoutId, setCheckoutId] = useState<string | null>(null);
+  const [webUrl, setWebUrl] = useState<string | null>(null);
 
-  // Load cart from localStorage on mount
+  // Load checkoutId from localStorage on mount
   useEffect(() => {
-    const savedCart = localStorage.getItem('nirvanachai-cart');
-    if (savedCart) {
-      setItems(JSON.parse(savedCart));
+    const savedCheckoutId = localStorage.getItem('nirvanachai-checkout-id');
+    if (savedCheckoutId) {
+      setCheckoutId(savedCheckoutId);
+      // Optionally, fetch checkout data here to restore cart items
     }
   }, []);
 
-  // Save cart to localStorage whenever items change
+  // Save checkoutId to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('nirvanachai-cart', JSON.stringify(items));
-  }, [items]);
-
-  const addToCart = (product: any) => {
-    setItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === product.id);
-      if (existingItem) {
-        toast({
-          title: "Updated cart",
-          description: `${product.name} quantity increased`,
-        });
-        return prevItems.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      } else {
-        toast({
-          title: "Added to cart",
-          description: `${product.name} has been added to your cart`,
-        });
-        return [...prevItems, {
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          image: product.image,
-          quantity: 1,
-          servingType: product.servingType || 'Loose Leaf'
-        }];
-      }
-    });
-  };
-
-  const removeFromCart = (id: number) => {
-    setItems(prevItems => prevItems.filter(item => item.id !== id));
-    toast({
-      title: "Removed from cart",
-      description: "Item has been removed from your cart",
-    });
-  };
-
-  const updateQuantity = (id: number, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(id);
-      return;
+    if (checkoutId) {
+      localStorage.setItem('nirvanachai-checkout-id', checkoutId);
     }
-    setItems(prevItems =>
-      prevItems.map(item =>
-        item.id === id ? { ...item, quantity } : item
-      )
-    );
+  }, [checkoutId]);
+
+  // Helper to map Shopify checkout line items to ShopifyCartItem
+  const mapLineItems = (checkout: any): ShopifyCartItem[] => {
+    return checkout?.lineItems?.edges?.map((edge: any) => ({
+      id: edge.node.id,
+      title: edge.node.title,
+      quantity: edge.node.quantity,
+      image: edge.node.variant?.image?.url || '',
+      price: edge.node.variant?.price?.amount || '0',
+      currency: edge.node.variant?.price?.currencyCode || '',
+      variantId: edge.node.variant?.id,
+    })) || [];
   };
 
-  const clearCart = () => {
-    setItems([]);
-    toast({
-      title: "Cart cleared",
-      description: "All items have been removed from your cart",
-    });
+  // Add to cart (create checkout if needed)
+  const addToCart = async (variantId: string, quantity: number = 1) => {
+    let checkout;
+    if (!checkoutId) {
+      checkout = await createCheckout(variantId, quantity);
+      setCheckoutId(checkout.id);
+      setWebUrl(checkout.webUrl);
+    } else {
+      checkout = await addLineItems(checkoutId, variantId, quantity);
+    }
+    setItems(mapLineItems(checkout));
+    setWebUrl(checkout.webUrl);
+    toast({ title: 'Added to cart', description: 'Product added to your cart.' });
   };
 
-  const getTotalItems = () => {
-    return items.reduce((total, item) => total + item.quantity, 0);
+  // Remove from cart
+  const removeFromCart = async (lineItemId: string) => {
+    if (!checkoutId) return;
+    const checkout = await removeLineItems(checkoutId, [lineItemId]);
+    setItems(mapLineItems(checkout));
+    setWebUrl(checkout.webUrl);
+    toast({ title: 'Removed from cart', description: 'Item removed from your cart.' });
   };
 
+  // Update quantity
+  const updateQuantity = async (lineItemId: string, quantity: number) => {
+    if (!checkoutId) return;
+    const checkout = await updateLineItems(checkoutId, [{ id: lineItemId, quantity }]);
+    setItems(mapLineItems(checkout));
+    setWebUrl(checkout.webUrl);
+  };
+
+  // Clear cart (remove all items)
+  const clearCart = async () => {
+    if (!checkoutId) return;
+    const lineItemIds = items.map(item => item.id);
+    const checkout = await removeLineItems(checkoutId, lineItemIds);
+    setItems(mapLineItems(checkout));
+    setWebUrl(checkout.webUrl);
+    toast({ title: 'Cart cleared', description: 'All items removed from your cart.' });
+  };
+
+  const getTotalItems = () => items.reduce((total, item) => total + item.quantity, 0);
   const getTotalPrice = () => {
-    return items.reduce((total, item) => total + (item.price * item.quantity), 0);
+    if (items.length === 0) return '₸0';
+    const currency = items[0].currency || '₸';
+    const total = items.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
+    return `${currency}${total}`;
   };
 
   return (
     <CartContext.Provider value={{
       items,
+      checkoutId,
+      webUrl,
       addToCart,
       removeFromCart,
       updateQuantity,

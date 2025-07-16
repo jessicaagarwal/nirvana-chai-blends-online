@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Star, Heart, ShoppingCart, Truck, Shield, RotateCcw, Leaf } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,36 +9,53 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from '@/components/ui/use-toast';
 import { useWishlist } from '@/contexts/WishlistContext';
+import { getProducts } from '../lib/shopify';
 
 const ProductDetail = () => {
-  const { id } = useParams();
+  const { id: handle } = useParams();
+  const [product, setProduct] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
-  // Mock product data - in a real app, this would come from an API
-  const product = {
-    id: 1,
-    name: 'Mountain Serenity Blend',
-    price: 3500,
-    originalPrice: 4000,
-    images: ['/placeholder.svg', '/placeholder.svg', '/placeholder.svg'],
-    category: 'Premium Blends',
-    rating: 4.9,
-    reviews: 124,
-    description: 'A harmonious blend of high-altitude tea leaves with traditional Kazakh herbs, carefully crafted to provide a moment of tranquility in your busy day.',
-    longDescription: 'Our Mountain Serenity Blend is inspired by the pristine mountain ranges of Kazakhstan. This premium tea combines the finest high-altitude grown tea leaves with traditional herbs gathered from the steppes. Each sip delivers a complex flavor profile that starts with earthy undertones and finishes with a subtle floral sweetness.',
-    ingredients: ['Premium Green Tea', 'Wild Mountain Mint', 'Chamomile Flowers', 'Rose Petals', 'Natural Bergamot Oil'],
-    brewingInstructions: 'Heat water to 80°C (176°F). Use 1 teaspoon per cup. Steep for 3-4 minutes for optimal flavor.',
-    inStock: true,
-    stockCount: 47,
-    weight: '100g',
-    origin: 'Kazakhstan Highlands',
-    badge: 'Best Seller',
-    benefits: ['Stress Relief', 'Antioxidant Rich', 'Natural Energy', 'Digestive Support'],
-    servingType: 'Loose Leaf | 170 Cups'
-  };
+  useEffect(() => {
+    setLoading(true);
+    getProducts()
+      .then((products) => {
+        const found = products.find((p: any) => p.handle === handle);
+        setProduct(found || null);
+        console.log('Loaded product:', found);
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [handle]);
+
+  if (loading) return <div>Loading product...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!product) return <div>Product not found.</div>;
+
+  // Defensive fallbacks for Shopify data
+  const images = product.images?.edges?.map((img: any) => img.node?.url || '/placeholder.svg') || ['/placeholder.svg'];
+  const title = product.title || 'Untitled Product';
+  const description = product.description || '';
+  const price = product.variants?.edges?.[0]?.node?.price?.amount || 'N/A';
+  const currency = product.variants?.edges?.[0]?.node?.price?.currencyCode || '';
+  const tags = product.tags || [];
+  const productType = product.productType || '';
+  const benefits = product.benefits || [];
+  const ingredients = product.ingredients || [];
+  const brewingInstructions = product.brewingInstructions || '';
+  const origin = product.origin || '';
+  const weight = product.weight || '';
+  const longDescription = product.longDescription || '';
+  const stockCount = product.stockCount || 0;
+  const rating = product.rating || 0;
+  const reviews = product.reviews || 0;
+  const originalPrice = product.originalPrice || null;
+  const badge = product.badge || null;
 
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
@@ -46,22 +63,22 @@ const ProductDetail = () => {
     }
     toast({
       title: "Added to cart",
-      description: `${quantity} x ${product.name} added to your cart`,
+      description: `${quantity} x ${title} added to your cart`,
     });
   };
 
   const handleWishlist = () => {
     if (isInWishlist(product.id)) {
       removeFromWishlist(product.id);
-      toast({ title: 'Removed from wishlist', description: `${product.name} removed from your wishlist` });
+      toast({ title: 'Removed from wishlist', description: `${title} removed from your wishlist` });
     } else {
       addToWishlist({
         id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.images[0],
+        name: title,
+        price: price,
+        image: images[0],
       });
-      toast({ title: 'Added to wishlist', description: `${product.name} added to your wishlist` });
+      toast({ title: 'Added to wishlist', description: `${title} added to your wishlist` });
     }
   };
 
@@ -85,7 +102,7 @@ const ProductDetail = () => {
             <span className="mx-2">/</span>
             <a href="/shop" className="hover:text-primary">Shop</a>
             <span className="mx-2">/</span>
-            <span className="text-gray-900">{product.name}</span>
+            <span className="text-gray-900">{title}</span>
           </nav>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
@@ -93,28 +110,28 @@ const ProductDetail = () => {
             <div className="space-y-4">
               <div className="relative">
                 <img
-                  src={product.images[selectedImage]}
-                  alt={product.name}
+                  src={images[selectedImage]}
+                  alt={title}
                   className="w-full h-96 object-cover rounded-lg tea-shadow"
                 />
-                {product.badge && (
+                {badge && (
                   <Badge className="absolute top-4 left-4 bg-secondary text-white">
-                    {product.badge}
+                    {badge}
                   </Badge>
                 )}
-                {product.originalPrice && (
+                {originalPrice && (
                   <Badge className="absolute top-4 right-4 bg-red-500 text-white">
-                    Save ₸{product.originalPrice - product.price}
+                    Save ₸{originalPrice - price}
                   </Badge>
                 )}
               </div>
               
               <div className="flex space-x-2">
-                {product.images.map((image, index) => (
+                {images.map((image: string, index: number) => (
                   <img
                     key={index}
                     src={image}
-                    alt={`${product.name} ${index + 1}`}
+                    alt={`${title} ${index + 1}`}
                     className={`w-16 h-16 object-cover rounded cursor-pointer border-2 ${
                       selectedImage === index ? 'border-secondary' : 'border-gray-200'
                     }`}
@@ -129,7 +146,7 @@ const ProductDetail = () => {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded">
-                    {product.category}
+                    {productType}
                   </span>
                   <Button variant="ghost" size="sm" onClick={handleWishlist} aria-label={isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}>
                     <Heart className={`h-4 w-4 ${isInWishlist(product.id) ? 'fill-saffron-orange text-saffron-orange' : 'text-gray-400'}`} strokeWidth={isInWishlist(product.id) ? 0 : 2} />
@@ -137,7 +154,7 @@ const ProductDetail = () => {
                 </div>
                 
                 <h1 className="font-cormorant text-3xl font-bold text-primary mb-4">
-                  {product.name}
+                  {title}
                 </h1>
                 
                 <div className="flex items-center space-x-4 mb-4">
@@ -146,27 +163,27 @@ const ProductDetail = () => {
                       <Star 
                         key={i}
                         className={`h-4 w-4 ${
-                          i < Math.floor(product.rating) 
+                          i < Math.floor(rating) 
                             ? 'text-yellow-400 fill-current' 
                             : 'text-gray-300'
                         }`}
                       />
                     ))}
                     <span className="ml-2 text-sm text-gray-600">
-                      {product.rating} ({product.reviews} reviews)
+                      {rating} ({reviews} reviews)
                     </span>
                   </div>
                 </div>
                 
                 <div className="flex items-center space-x-4 mb-6">
-                  <span className="text-3xl font-bold text-primary">₸{product.price}</span>
-                  {product.originalPrice && (
-                    <span className="text-xl text-gray-500 line-through">₸{product.originalPrice}</span>
+                  <span className="text-3xl font-bold text-primary">₸{price}</span>
+                  {originalPrice && (
+                    <span className="text-xl text-gray-500 line-through">₸{originalPrice}</span>
                   )}
                 </div>
                 
                 <p className="text-gray-600 mb-6">
-                  {product.description}
+                  {description}
                 </p>
               </div>
 
@@ -174,7 +191,7 @@ const ProductDetail = () => {
               <div>
                 <h3 className="font-cormorant text-lg font-semibold text-primary mb-3">Key Benefits</h3>
                 <div className="flex flex-wrap gap-2">
-                  {product.benefits.map((benefit, index) => (
+                  {benefits.map((benefit: string, index: number) => (
                     <Badge key={index} variant="outline" className="text-xs">
                       <Leaf className="h-3 w-3 mr-1" />
                       {benefit}
@@ -203,7 +220,7 @@ const ProductDetail = () => {
                     </button>
                   </div>
                   <span className="text-sm text-gray-600">
-                    ({product.stockCount} in stock)
+                    ({stockCount} in stock)
                   </span>
                 </div>
                 
@@ -252,17 +269,17 @@ const ProductDetail = () => {
                 <Card>
                   <CardContent className="p-6">
                     <h3 className="font-cormorant text-xl font-semibold text-primary mb-4">
-                      About {product.name}
+                      About {title}
                     </h3>
                     <p className="text-gray-600 leading-relaxed mb-4">
-                      {product.longDescription}
+                      {longDescription}
                     </p>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <span className="font-medium">Origin:</span> {product.origin}
+                        <span className="font-medium">Origin:</span> {origin}
                       </div>
                       <div>
-                        <span className="font-medium">Weight:</span> {product.weight}
+                        <span className="font-medium">Weight:</span> {weight}
                       </div>
                     </div>
                   </CardContent>
@@ -278,7 +295,7 @@ const ProductDetail = () => {
                           Ingredients
                         </h3>
                         <ul className="space-y-2">
-                          {product.ingredients.map((ingredient, index) => (
+                          {ingredients.map((ingredient: string, index: number) => (
                             <li key={index} className="flex items-center text-gray-600">
                               <Leaf className="h-3 w-3 mr-2 text-secondary" />
                               {ingredient}
@@ -292,7 +309,7 @@ const ProductDetail = () => {
                           Brewing Instructions
                         </h3>
                         <p className="text-gray-600 leading-relaxed">
-                          {product.brewingInstructions}
+                          {brewingInstructions}
                         </p>
                         
                         <div className="mt-4 p-4 bg-cream/50 rounded-lg">

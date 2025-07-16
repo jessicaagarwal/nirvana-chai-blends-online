@@ -71,3 +71,15 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+## Shopify Storefront API Setup
+
+Create a `.env` file in the project root with the following content:
+
+```
+VITE_SHOPIFY_DOMAIN=wt5ges-aw.myshopify.com
+VITE_SHOPIFY_API_VERSION=2024-04
+VITE_SHOPIFY_STOREFRONT_TOKEN=53cc08121d137e005c5f752d5da661c1
+```
+
+This is required for the frontend to connect to the Shopify Storefront API.
